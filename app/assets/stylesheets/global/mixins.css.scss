@@ -1,0 +1,11 @@
+/* global mixins */
+
+@mixin box-sizing {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+@mixin border-dashed($color, $width) {
+  border: $width dashed $color; 
+}

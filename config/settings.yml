@@ -1,0 +1,12 @@
+# $RAILS_ROOT/shared/config directory on the server, since application.yml is ignored by git.
+
+defaults: &defaults
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

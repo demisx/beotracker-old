@@ -1,0 +1,33 @@
+// Colors not defined in bootstrap
+$white: #fff;
+
+// HTML5 sections
+$body-bg-color: $gray-lighter;
+
+// Buttons
+$btn-color: $btn-default-color;
+$btn-active-color: #bbb;
+$btn-border-color: $btn-default-border;
+$btn-bg-color: $btn-default-bg;
+
+// Forms
+$form-field-help-block-font-color: $gray-light;
+$form-field-help-block-font-size: 0.9em;
+$form-field-required: #f00;
+$form-field-error-color: #B94A48;
+$form-field-error-bg-color: #F2DEDE;
+
+// Sticky navigation
+$nav-item-hover-bg-color: $gray-light;
+
+// Page specific
+
+
+// Misc
+$debug-window-font-color: $gray-light;
+$progress-bar-bg-color: $gray-light;
+
+// Media Query dimensions
+$screen-sm-min:  768px;
+$screen-md-min:  992px;
+$screen-lg-min: 1200px;

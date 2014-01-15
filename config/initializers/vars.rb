@@ -1,0 +1,1 @@
+# Gon.global.personal_statement_max_chars = Settings.form.personal_statement.maxlength

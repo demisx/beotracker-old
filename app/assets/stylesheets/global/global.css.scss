@@ -1,0 +1,52 @@
+body { 
+  background-color: $body-bg-color;
+
+  .required {
+    color: $form-field-required;  
+  }
+}
+
+header {
+  nav {
+    .btn-primary .caret {
+      border-bottom-color: $btn-primary-color;
+      border-top-color: $btn-primary-color;
+    }
+  }
+  #account {
+    margin:10px 0;
+    a #profile-name {
+      color: $gray-light;
+    }
+  }
+}
+
+form {
+  .help-block {
+    color: $form-field-help-block-font-color;
+    font-size: $form-field-help-block-font-size;
+  }
+  .required-field {
+    &:after {
+      content: " *";
+      color: $form-field-required;
+    }
+  }
+  .field_with_errors {
+    input, select, textarea {
+      @include border-dashed($form-field-error-color, 1px);
+      background-color: $form-field-error-bg-color;
+    }
+  }
+
+}
+
+/* miscellaneous */
+.debug_dump {
+  clear: both;
+  float: left;
+  width: 100%;
+  color: $debug-window-font-color;
+  margin-top: 175px;
+  @include box-sizing;
+}

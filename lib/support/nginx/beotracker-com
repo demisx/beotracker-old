@@ -1,0 +1,44 @@
+# BEOTRACKER.COM
+# Maintainer: @demisx
+# App Version: 1.0
+
+upstream beotracker {
+  server unix:/home/gr/beocommedia/beotracker-com/shared/sockets/unicorn.sock;
+}
+
+log_format default_log '$host $remote_addr [$time_local] "$request" $status $request_length "$http_referer" "$http_user_agent" $request_time';
+
+server {
+  listen *:80 default_server;
+  server_name beotracker.com.stg.colddata.com;
+  server_tokens off;
+  root /home/gr/beocommedia/beotracker-com/current/public;
+  access_log  /home/gr/beocommedia/beotracker-com/shared/log/beotracker-com_access.log;
+  error_log   /home/gr/beocommedia/beotracker-com/shared/log/beotracker-com_error.log;
+
+  location ~ ^/(assets)/  {
+    gzip_static on; # to serve pre-gzipped version
+    expires max;
+    add_header Cache-Control public;
+  }
+
+  location / {
+    # serve static files from defined root folder;.
+    # @beotracker is a named location for the upstream fallback, see below
+    #try_files $uri $uri/index.html $uri.html @beotracker;
+    try_files $uri $uri/index.html $uri.html @beotracker;
+  }
+
+  # if a file, which is not found in the root folder is requested,
+  # then the proxy pass the request to the upsteam 
+   location @beotracker {
+     proxy_read_timeout 300;
+     proxy_connect_timeout 300;
+     proxy_redirect     off;
+
+     proxy_set_header   X-Forwarded-Proto $scheme;
+     proxy_set_header   Host              $http_host;
+     proxy_set_header   X-Real-IP         $remote_addr;
+     proxy_pass http://beotracker;
+   }
+}

@@ -1,0 +1,161 @@
+#! /bin/sh
+
+# BEOTRACKER.COM
+# Maintainer: @dmoore
+# Authors: dmoore@colddata.com
+# App Version: 1.0
+
+### BEGIN INIT INFO
+# Provides:          beotracker-com 
+# Required-Start:    $local_fs $remote_fs $network $syslog redis-server
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Next generation agile project management
+# Description:       Next generation agile project management 
+### END INIT INFO
+
+### Environment variables
+RAILS_ENV="production"
+
+app_path="/home/bt/beocommedia/beotracker-com"
+app_root="$app_path/current/"
+app_user="bt"
+unicorn_conf="$app_root/config/unicorn.rb"
+pid_path="$app_path/shared/pids"
+app_server_pid_path="$pid_path/unicorn.pid"
+socket_path="$app_path/shared/sockets/unicorn.sock"
+
+# Switch to the app path, if it fails exit with an error.
+if ! cd "$app_root" ; then
+ echo "Failed to cd into $app_root, exiting!";  exit 1
+fi
+
+check_pids(){
+  if ! mkdir -p "$pid_path"; then
+    echo "Could not create the path $pid_path needed to store the pids."
+    exit 1
+  fi
+  # If there exists a file which should hold the value of the Unicorn pid: read it.
+  if [ -f "$app_server_pid_path" ]; then
+    wpid=$(cat "$app_server_pid_path")
+  else
+    wpid=0
+  fi
+}
+
+# Checks whether the different parts of the service are already running or not.
+check_status(){
+  check_pids
+  # If the web server is running kill -0 $wpid returns true, or rather 0.
+  # Checks of *_status should only check for == 0 or != 0, never anything else.
+  if [ $wpid -ne 0 ]; then
+    kill -0 "$wpid" 2>/dev/null
+    web_status="$?"
+  else
+    web_status="-1"
+  fi
+}
+
+# Check for stale pids and remove them if necessary
+check_stale_pids(){
+  check_status
+  # If there is a pid it is something else than 0, the service is running if
+  # *_status is == 0.
+  if [ "$wpid" != "0" -a "$web_status" != "0" ]; then
+    echo "Removing stale Unicorn web server pid. This is most likely caused by the web server crashing the last time it ran."
+    if ! rm "$app_server_pid_path"; then
+      echo "Unable to remove stale pid, exiting"
+      exit 1
+    fi
+  fi
+}
+
+check_pids
+
+# If no parts of the service is running, bail out.
+exit_if_not_running(){
+  check_stale_pids
+  if [ "$web_status" != "0" ]; then
+    echo "beotracker.com is not running."
+    exit
+  fi
+}
+
+execute() {
+  sudo -u $app_user -H bash -l -c "$1"
+ }
+
+# Starts Unicorn.
+start() {
+  echo "Attempting to start Unicorn app server..."
+  check_stale_pids
+
+  # Then check if the service is running. If it is: don't start again.
+  if [ "$web_status" = "0" ]; then
+    echo "The Unicorn web server already running with pid $wpid, not restarting."
+  else
+    echo "Starting the beotracker.com Unicorn web server..."
+    # Remove old socket if it exists
+    rm -f "$socket_path"/beotracker-com.socket 2>/dev/null
+    # Start the webserver
+    execute "bundle exec unicorn -D -c $unicorn_conf -E $RAILS_ENV"
+  fi
+
+}
+
+
+# Ask the Unicorn to stop, if not kills them.
+stop() {
+  exit_if_not_running
+
+  # If the Unicorn web server is running, tell it to stop;
+  if [ "$web_status" = "0" ]; then
+    kill -QUIT "$wpid" &
+    echo "Stopping the beotracker.com Unicorn web server..."
+    stopping=true
+  else
+    echo "The Unicorn web was not running, doing nothing."
+  fi
+
+  # If something needs to be stopped, lets wait for it to stop. Never use SIGKILL in a script.
+  while [ "$stopping" = "true" ]; do
+    sleep 1
+    check_status
+    if [ "$web_status" = "0" ]; then
+      printf "."
+    else
+      printf "\n"
+      break
+    fi
+  done
+  sleep 1
+  # Cleaning up unused pids
+  rm "$app_server_pid_path" 2>/dev/null
+
+}
+
+restart(){
+  check_status
+  if [ "$web_status" = "0" -o "$sidekiq_status" = "0" ]; then
+    stop
+  fi
+  start
+}
+
+## Finally the input handling.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        restart
+        ;;
+  *)
+        echo "Usage: service beotracker-com {start|stop|restart}"
+        exit 1
+        ;;
+esac

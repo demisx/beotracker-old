@@ -1,0 +1,5 @@
+--color
+--format documentation
+--order rand
+--drb
+#--profile # this option will show 10 slowest specs

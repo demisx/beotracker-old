@@ -1,0 +1,65 @@
+# For SQLite version 3.x
+#   gem install sqlite3
+#
+#   Ensure the SQLite 3 gem is defined in your Gemfile
+#   gem 'sqlite3'
+#
+# development:
+#  adapter: sqlite3
+#  database: db/development.sqlite3
+#  pool: 5
+#  timeout: 5000
+
+
+# On Mac OS X install mysql via brew
+# ----------------------------------
+# brew install mysql
+# ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
+# launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
+# mysql_secure_installation 
+# Enter current password for root (enter for none): 
+# Set root password? [Y/n] n
+# … … …
+
+# To set up a new application user
+# ---------------------------------
+# mysql -uroot [-p(password)]
+# SQL> CREATE USER 'gr'@'localhost' IDENTIFIED BY ''; // Supply [password] when setting up on production host
+# SQL> GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `gr_%`.* TO 'gr'@'localhost';
+
+development:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: gr_development
+  pool: 5
+  username: gr
+  password:
+  host: localhost
+  port: 3306
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: gr_test
+  pool: 5
+  username: gr
+  password:
+  host: localhost
+  port: 3306
+
+production:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: gr_production
+  username: gr
+  password: [password]
+  pool: 5
+  host: localhost
+  port: 3306
+  

@@ -1,0 +1,10 @@
+# $RAILS_ROOT/shared/config directory on the server, since application.yml is ignored by git.
+
+# Global variable
+GMAIL_DOMAIN:   gmail.com
+GMAIL_USERNAME: signups.beotracker@gmail.com
+GMAIL_PASSWORD: [password]
+
+production:
+  # FIXME: This password will need to be changed prior to real production deployment
+  GMAIL_PASSWORD: [password]
